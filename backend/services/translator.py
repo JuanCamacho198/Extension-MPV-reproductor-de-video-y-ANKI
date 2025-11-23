@@ -1,6 +1,7 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from deep_translator import GoogleTranslator
 
 load_dotenv()
 
@@ -8,8 +9,10 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def translate_text_with_context(text: str, context: str) -> str:
     """
-    Traduce el texto seleccionado teniendo en cuenta el contexto (la frase completa).
+    Traduce el texto seleccionado. Intenta usar OpenAI primero, y si falla (cuota/error),
+    usa Google Translate como respaldo gratuito.
     """
+    # Intentar con OpenAI
     try:
         prompt = f"""
         Contexto: "{context}"
@@ -33,5 +36,13 @@ def translate_text_with_context(text: str, context: str) -> str:
         
         return response.choices[0].message.content.strip()
     except Exception as e:
-        print(f"Error en traducción: {e}")
-        return f"[Error: {str(e)}]"
+        print(f"⚠️ Error con OpenAI ({e}). Usando Google Translate como respaldo...")
+        
+        # Fallback: Google Translate
+        try:
+            translator = GoogleTranslator(source='auto', target='es')
+            translation = translator.translate(text)
+            # Limpiar la traducción (quitar puntos finales si existen)
+            return translation.strip().rstrip('.')
+        except Exception as e2:
+            return f"[Error de traducción: {str(e2)}]"

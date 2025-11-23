@@ -12,10 +12,15 @@ def add_card(front: str, back: str, context: str = "") -> dict:
     """
     Añade una nota a Anki usando AnkiConnect.
     """
-    # Formatear el reverso para incluir el contexto si existe
+    # Limpiar el texto frontal (quitar puntos finales y espacios extra)
+    clean_front = front.strip().rstrip('.')
+    
+    # Formatear el reverso
+    # El usuario pidió SOLO la traducción, sin el contexto del subtítulo.
     final_back = back
-    if context:
-        final_back += f"<br><br><small><i>Contexto: {context}</i></small>"
+    
+    # Si en el futuro queremos añadir ejemplos generados por IA, se harían aquí.
+    # Por ahora, mantenemos el reverso limpio solo con la traducción.
 
     payload = {
         "action": "addNote",
@@ -25,7 +30,7 @@ def add_card(front: str, back: str, context: str = "") -> dict:
                 "deckName": DECK_NAME,
                 "modelName": MODEL_NAME,
                 "fields": {
-                    "Front": front,
+                    "Front": clean_front,
                     "Back": final_back
                 },
                 "options": {
@@ -37,6 +42,7 @@ def add_card(front: str, back: str, context: str = "") -> dict:
     }
 
     try:
+        print(f"Intentando añadir tarjeta al mazo: '{DECK_NAME}' con modelo: '{MODEL_NAME}'")
         response = requests.post(ANKI_CONNECT_URL, json=payload)
         result = response.json()
         

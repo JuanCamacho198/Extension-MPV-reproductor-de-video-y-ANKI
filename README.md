@@ -4,72 +4,88 @@ Este proyecto es una integración entre el reproductor de video **MPV** y **Anki
 
 ## Funcionalidad Principal
 
-1.  **Reproducción**: Ver videos con doble subtítulo en MPV.
-2.  **Captura**: Al presionar una tecla (ej. `Ctrl+S`), se pausa el video y se captura el subtítulo actual.
-3.  **Selección**: Una interfaz externa se abre permitiendo seleccionar con el mouse la palabra o frase exacta a estudiar.
-4.  **Traducción y Guardado**: La selección se traduce (vía OpenAI/DeepL) y se envía automáticamente a Anki.
-
-## Arquitectura
-
-El sistema consta de tres módulos principales:
-
-*   **Cliente MPV (Lua)**: Script que corre dentro de MPV, captura el texto y gatilla el proceso.
-*   **Backend (Python/FastAPI)**: Servidor local que orquesta la comunicación, maneja las traducciones y conecta con AnkiConnect.
-*   **Frontend (React)**: Interfaz gráfica moderna para realizar la selección de texto y confirmar la creación de la tarjeta.
+1.  **Reproducción**: Ver videos en MPV.
+2.  **Captura**: Al presionar `Ctrl+S`, se pausa el video y se captura el subtítulo actual.
+3.  **Selección**: Una interfaz web moderna (React) muestra el subtítulo y permite seleccionar con el mouse la palabra exacta a estudiar.
+4.  **Traducción Inteligente**:
+    *   Intenta usar **OpenAI (GPT-4o-mini)** para traducciones contextuales.
+    *   Si falla (o no hay cuota), usa automáticamente **Google Translate** como respaldo gratuito.
+5.  **Integración con Anki**: Guarda la tarjeta directamente en tu mazo configurado (ej. "PALABRAS") sin salir del flujo.
 
 ## Requisitos Previos
 
-*   MPV Player
-*   Anki con el plugin AnkiConnect instalado
-*   Python 3.10+
-*   Node.js (para el desarrollo del frontend)
+*   **MPV Player**: Reproductor de video.
+*   **Anki**: Con el complemento **AnkiConnect** instalado (código `2055492159`).
+*   **Python 3.10+**: Para el backend.
+*   **Node.js**: Para el frontend.
 
-## Instalación y Ejecución
+## Instalación Inicial
 
-### 1. Backend (Servidor)
-1.  Navega a la carpeta `backend`:
+1.  **Clonar el repositorio**:
     ```bash
-    cd backend
+    git clone https://github.com/JuanCamacho198/Extension-MPV-reproductor-de-video-y-ANKI.git
+    cd Extension-MPV-reproductor-de-video-y-ANKI
     ```
-2.  Crea y activa el entorno virtual:
-    ```bash
+
+2.  **Configurar Backend**:
+    ```powershell
+    cd backend
     python -m venv venv
     .\venv\Scripts\Activate
-    ```
-3.  Instala las dependencias:
-    ```bash
     pip install -r requirements.txt
+    pip install deep-translator # Para respaldo gratuito
     ```
-4.  Ejecuta el servidor:
-    ```bash
-    uvicorn main:app --reload --port 8000
-    ```
+    *   Crea un archivo `.env` en `backend/` con tu API Key de OpenAI (opcional) y configuración de Anki:
+        ```env
+        OPENAI_API_KEY=sk-...
+        ANKI_DECK=PALABRAS
+        ANKI_MODEL=Basic
+        ```
 
-### 2. Frontend (Interfaz)
-1.  Navega a la carpeta `frontend`:
-    ```bash
+3.  **Configurar Frontend**:
+    ```powershell
     cd frontend
-    ```
-2.  Instala las dependencias:
-    ```bash
     npm install
     ```
-3.  Ejecuta el servidor de desarrollo:
-    ```bash
-    npm run dev
-    ```
-    Abre `http://localhost:5173` en tu navegador.
 
-### 3. MPV (Reproductor)
-1.  Abre MPV cargando el script Lua:
-    ```bash
-    mpv --script="ruta/a/mpv-script/mpv-anki-bridge.lua" tu_video.mkv
-    ```
-    O copia el archivo `.lua` a tu carpeta de scripts de MPV (`%APPDATA%\mpv\scripts\`).
+4.  **Instalar Script de MPV**:
+    *   El script `mpv-anki-bridge.lua` debe estar en `%APPDATA%\mpv\scripts\`.
+    *   (Si usaste el asistente, esto ya se hizo automáticamente).
 
-## Uso
-1.  Reproduce un video en MPV.
-2.  Cuando veas una frase interesante, presiona `Ctrl+S`.
-3.  El video se pausará y el subtítulo aparecerá en la interfaz web.
-4.  Selecciona la palabra/frase con el mouse.
-5.  Haz clic en "Translate" y luego en "Save to Anki".
+---
+
+## Guía de Uso Diario
+
+Para usar tu sistema de aprendizaje cada vez que quieras estudiar, sigue estos 3 sencillos pasos:
+
+### 1. Abre Anki
+Asegúrate de que la aplicación de escritorio de Anki esté abierta y ejecutándose en segundo plano.
+
+### 2. Inicia el Sistema
+Hemos creado un script automático para facilitar esto. Ve a la carpeta del proyecto y ejecuta:
+
+```powershell
+.\start_app.ps1
+```
+
+*   Esto abrirá dos ventanas de terminal (Backend y Frontend).
+*   Abrirá automáticamente tu navegador en `http://localhost:5173`.
+
+### 3. Abre tu Video en MPV
+Abre cualquier archivo de video con MPV. El script se cargará automáticamente.
+
+### ¡A Estudiar!
+1.  Mira tu video tranquilamente.
+2.  Cuando veas una palabra o frase que quieras aprender, presiona **`Ctrl+S`**.
+3.  El video se pausará automáticamente.
+4.  Ve a la ventana del navegador abierta.
+5.  **Selecciona con el mouse** la palabra o frase específica.
+6.  Haz clic en **"Traducir"** (verás la traducción limpia).
+7.  Haz clic en **"Guardar en Anki"**.
+8.  ¡Listo! La tarjeta se ha guardado en tu mazo "PALABRAS". Vuelve al video y continúa.
+
+## Solución de Problemas
+
+*   **Error de OpenAI (429)**: El sistema cambiará automáticamente a Google Translate. No requiere acción.
+*   **No conecta con Anki**: Asegúrate de que Anki está abierto y tienes AnkiConnect instalado.
+*   **No captura el subtítulo**: Asegúrate de que el video tiene subtítulos activos en MPV.
