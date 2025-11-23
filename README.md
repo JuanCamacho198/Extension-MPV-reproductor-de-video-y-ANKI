@@ -24,6 +24,52 @@ El sistema consta de tres módulos principales:
 *   Python 3.10+
 *   Node.js (para el desarrollo del frontend)
 
-## Instalación
+## Instalación y Ejecución
 
-*(Instrucciones pendientes de implementación)*
+### 1. Backend (Servidor)
+1.  Navega a la carpeta `backend`:
+    ```bash
+    cd backend
+    ```
+2.  Crea y activa el entorno virtual:
+    ```bash
+    python -m venv venv
+    .\venv\Scripts\Activate
+    ```
+3.  Instala las dependencias:
+    ```bash
+    pip install -r requirements.txt
+    ```
+4.  Ejecuta el servidor:
+    ```bash
+    uvicorn main:app --reload --port 8000
+    ```
+
+### 2. Frontend (Interfaz)
+1.  Navega a la carpeta `frontend`:
+    ```bash
+    cd frontend
+    ```
+2.  Instala las dependencias:
+    ```bash
+    npm install
+    ```
+3.  Ejecuta el servidor de desarrollo:
+    ```bash
+    npm run dev
+    ```
+    Abre `http://localhost:5173` en tu navegador.
+
+### 3. MPV (Reproductor)
+1.  Abre MPV cargando el script Lua:
+    ```bash
+    mpv --script="ruta/a/mpv-script/mpv-anki-bridge.lua" tu_video.mkv
+    ```
+    O copia el archivo `.lua` a tu carpeta de scripts de MPV (`%APPDATA%\mpv\scripts\`).
+
+## Uso
+1.  Reproduce un video en MPV.
+2.  Cuando veas una frase interesante, presiona `Ctrl+S`.
+3.  El video se pausará y el subtítulo aparecerá en la interfaz web.
+4.  Selecciona la palabra/frase con el mouse.
+5.  Haz clic en "Translate" y luego en "Save to Anki".
