@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 function App() {
   const [subtitle, setSubtitle] = useState('')
@@ -6,25 +6,30 @@ function App() {
   const [translation, setTranslation] = useState('')
   const [status, setStatus] = useState('')
 
-  useEffect(() => {
-    const interval = setInterval(fetchSubtitle, 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const fetchSubtitle = async () => {
+  const fetchSubtitle = useCallback(async () => {
     try {
       const res = await fetch('http://localhost:8000/api/current-subtitle')
       const data = await res.json()
-      if (data.text && data.text !== subtitle) {
-        setSubtitle(data.text)
-        setSelection('')
-        setTranslation('')
-        setStatus('')
+      if (data.text) {
+        setSubtitle(prev => {
+          if (prev !== data.text) {
+            setSelection('')
+            setTranslation('')
+            setStatus('')
+            return data.text
+          }
+          return prev
+        })
       }
     } catch (err) {
       console.error('Error fetching subtitle', err)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(fetchSubtitle, 1000)
+    return () => clearInterval(interval)
+  }, [fetchSubtitle])
 
   const handleMouseUp = () => {
     const text = window.getSelection().toString()
@@ -46,6 +51,7 @@ function App() {
       setTranslation(data.translation)
       setStatus('Translated')
     } catch (err) {
+      console.error(err)
       setStatus('Error translating')
     }
   }
@@ -66,6 +72,7 @@ function App() {
         setStatus('Error saving')
       }
     } catch (err) {
+      console.error(err)
       setStatus('Error saving')
     }
   }
