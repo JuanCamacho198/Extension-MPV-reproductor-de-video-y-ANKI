@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+.pytest_cache/
+
+# Node.js / Frontend
+node_modules/
+dist/
+build/
+.npm
+.eslintcache
+
+# MPV
+*.log
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+#custom
+github/copilot-instructions.md
