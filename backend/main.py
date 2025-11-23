@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
+from services.translator import translate_text_with_context
+from services.anki import add_card
 
 app = FastAPI(title="MPV Anki Bridge")
 
@@ -53,12 +55,12 @@ def get_current_subtitle():
 
 @app.post("/api/translate")
 def translate_text(request: TranslationRequest):
-    # TODO: Implementar llamada a OpenAI/DeepL
-    # Mock response por ahora
-    return {"original": request.text, "translation": f"[Traducción de: {request.text}]"}
+    translation = translate_text_with_context(request.text, request.context)
+    return {"original": request.text, "translation": translation}
 
 @app.post("/api/anki/add")
 def add_to_anki(card: AnkiCard):
-    # TODO: Implementar llamada a AnkiConnect
-    print(f"Añadiendo a Anki: {card.front} -> {card.back}")
-    return {"status": "success", "cardId": 12345}
+    result = add_card(card.front, card.back, card.context)
+    if result["status"] == "error":
+        raise HTTPException(status_code=500, detail=result["message"])
+    return result
